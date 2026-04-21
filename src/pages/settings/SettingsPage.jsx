@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import FormInput from "../../components/auth/FormInput";
-import { updateUserSettings } from "../../api/api";
+import { getUserById, updateUserSettings } from "../../api/api";
 import { settingsSchema } from "../../schemas/auth";
 
 export default function SettingsPage() {
@@ -11,6 +11,7 @@ export default function SettingsPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(settingsSchema),
@@ -24,6 +25,31 @@ export default function SettingsPage() {
       created_by: "",
     },
   });
+
+  useEffect(() => {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      return;
+    }
+
+    const loadUser = async () => {
+      try {
+        const response = await getUserById(userId);
+        const data = response.data;
+        setValue("first_name", data.first_name);
+        setValue("last_name", data.last_name);
+        setValue("height", data.height);
+        setValue("weight_lbs", data.weight_lbs);
+        setValue("gender", data.gender);
+        setValue("date_of_birth", data.date_of_birth);
+        setValue("created_by", data.created_by);
+      } catch {
+        toast.error("Unable to load your profile.");
+      }
+    };
+
+    loadUser();
+  }, [setValue]);
 
   const onSubmit = async (values) => {
     setLoading(true);

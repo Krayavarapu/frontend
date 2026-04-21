@@ -15,7 +15,7 @@ export const signupSchema = z.object({
   height_inches: z.coerce.number().int().min(0).max(11),
   weight_lbs: z.coerce.number().positive("Weight must be greater than 0"),
   gender: z.enum(genderValues),
-  dob: z
+  date_of_birth: z
     .string()
     .min(1, "Date of birth is required")
     .refine((value) => new Date(value) <= new Date(), "Date of birth cannot be in the future"),
@@ -48,9 +48,8 @@ export function buildSignupPayload(values) {
     last_name: values.last_name,
     height: values.height_feet * 12 + values.height_inches,
     weight_lbs: values.weight_lbs,
-    date_of_birth: values.dob,
+    date_of_birth: values.date_of_birth,
     gender: values.gender,
-    created_by: new Date().toISOString().split("T")[0],
     user_id: values.user_id,
     password: values.password,
   };

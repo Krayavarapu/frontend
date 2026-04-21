@@ -33,6 +33,7 @@ export default function LoginPage() {
 
       if (response.status === 200 && data.session_token) {
         localStorage.setItem("session_token", data.session_token);
+        localStorage.setItem("user_id", data.user_id);
         toast.success("Welcome back.");
         navigate("/dashboard");
         return;

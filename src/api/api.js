@@ -25,4 +25,8 @@ export async function updateUserSettings(payload) {
   return api.put("/users/me", payload);
 }
 
+export async function getUserById(userId) {
+  return api.get(`/users/${userId}`);
+}
+
 export default api;

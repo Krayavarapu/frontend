@@ -25,7 +25,7 @@ export default function SignupPage() {
       height_inches: "",
       weight_lbs: "",
       gender: "Male",
-      dob: "",
+      date_of_birth: "",
       user_id: "",
       password: "",
     },
@@ -38,6 +38,7 @@ export default function SignupPage() {
       const response = await signupUser(payload);
       if (response.status === 201) {
         toast.success("Signup completed successfully.");
+        navigate("/login");
         return;
       }
       toast.error("Signup failed. Please try again.");
@@ -111,11 +112,11 @@ export default function SignupPage() {
         </div>
 
         <FormInput
-          id="dob"
+          id="date_of_birth"
           label="Date of Birth"
           type="date"
-          registration={register("dob")}
-          error={errors.dob?.message}
+          registration={register("date_of_birth")}
+          error={errors.date_of_birth?.message}
         />
         <FormInput
           id="user_id"
