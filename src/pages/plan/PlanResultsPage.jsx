@@ -49,7 +49,7 @@ export default function PlanResultsPage() {
         <p className="mt-2 text-slate-600">Generate a plan first to view results.</p>
         <button
           type="button"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/plan/generate")}
           className="mt-6 w-full rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700"
         >
           Go to Generate Plan

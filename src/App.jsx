@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import AppLayout from "./components/layout/AppLayout";
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
+import HomePage from "./pages/home/HomePage";
 import GeneratePlanPage from "./pages/plan/GeneratePlanPage";
 import PlanResultsPage from "./pages/plan/PlanResultsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
@@ -20,26 +22,38 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route
+        path="/home"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <HomePage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/settings"
         element={
           <ProtectedRoute>
-            <SettingsPage />
+            <AppLayout>
+              <SettingsPage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
-            <GeneratePlanPage />
-          </ProtectedRoute>
+          <Navigate to="/home" replace />
         }
       />
       <Route
         path="/plan/generate"
         element={
           <ProtectedRoute>
-            <GeneratePlanPage />
+            <AppLayout>
+              <GeneratePlanPage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -47,7 +61,9 @@ export default function App() {
         path="/plan/results"
         element={
           <ProtectedRoute>
-            <PlanResultsPage />
+            <AppLayout>
+              <PlanResultsPage />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
