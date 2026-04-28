@@ -37,4 +37,8 @@ export async function regeneratePlan(payload) {
   return api.post("/plan/regenerate", payload);
 }
 
+export async function getActivePlan() {
+  return api.get("/plan/active");
+}
+
 export default api;

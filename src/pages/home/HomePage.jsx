@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { getUserById } from "../../api/api";
+import { getActivePlan, getUserById } from "../../api/api";
 
 const defaultWorkouts = [
   "Upper Body Strength",
@@ -10,20 +10,24 @@ const defaultWorkouts = [
 export default function HomePage() {
   const [firstName, setFirstName] = useState("");
   const [loadingName, setLoadingName] = useState(true);
+  const [activePlan, setActivePlan] = useState(null);
 
   const activeWorkouts = useMemo(() => {
+    if (activePlan?.days?.length) {
+      return activePlan.days.map((day) => day.focus);
+    }
     try {
       const rawPlan = sessionStorage.getItem("latest_plan");
       if (!rawPlan) {
         return defaultWorkouts;
       }
       const parsed = JSON.parse(rawPlan);
-      const workoutNames = (parsed.workouts || []).map((section) => section.name).filter(Boolean);
+      const workoutNames = (parsed.days || []).map((day) => day.focus).filter(Boolean);
       return workoutNames.length > 0 ? workoutNames : defaultWorkouts;
     } catch {
       return defaultWorkouts;
     }
-  }, []);
+  }, [activePlan]);
 
   useEffect(() => {
     const userId = localStorage.getItem("user_id");
@@ -46,6 +50,20 @@ export default function HomePage() {
     loadName();
   }, []);
 
+  useEffect(() => {
+    const loadActivePlan = async () => {
+      try {
+        const response = await getActivePlan();
+        setActivePlan(response.data);
+        sessionStorage.setItem("latest_plan", JSON.stringify(response.data));
+      } catch {
+        setActivePlan(null);
+      }
+    };
+
+    loadActivePlan();
+  }, []);
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <section className="rounded-xl bg-white p-8 shadow-sm">
@@ -53,6 +71,11 @@ export default function HomePage() {
           Welcome{loadingName ? "" : `, ${firstName || "Athlete"}`}
         </h1>
         <p className="mt-2 text-slate-600">Here are your active workouts for this session.</p>
+        {activePlan && (
+          <p className="mt-2 text-sm text-indigo-700">
+            Active plan: {activePlan.title} ({activePlan.duration_days} days)
+          </p>
+        )}
       </section>
 
       <section className="rounded-xl bg-white p-8 shadow-sm">

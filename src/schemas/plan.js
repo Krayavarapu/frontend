@@ -4,4 +4,5 @@ export const planRequestSchema = z.object({
   prompt: z.string().min(1, "Prompt is required").max(500, "Prompt is too long"),
   goal: z.string().min(1, "Goal is required").max(120, "Goal is too long"),
   equipment: z.string().min(1, "Equipment is required").max(300, "Equipment is too long"),
+  duration_days: z.coerce.number().int().min(1, "Minimum 1 day").max(90, "Maximum 90 days"),
 });

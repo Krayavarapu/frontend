@@ -26,7 +26,7 @@ export default function PlanResultsPage() {
 
   const fallback = useMemo(() => loadStoredPlan(), []);
   const initialPlan = location.state?.plan || fallback.plan;
-  const initialRequest = location.state?.request || fallback.request || { prompt: "", goal: "", equipment: "" };
+  const initialRequest = location.state?.request || fallback.request || { prompt: "", goal: "", equipment: "", duration_days: 14 };
   const [plan, setPlan] = useState(initialPlan);
 
   const {
@@ -39,6 +39,7 @@ export default function PlanResultsPage() {
       prompt: initialRequest.prompt || "",
       goal: initialRequest.goal || "",
       equipment: initialRequest.equipment || "",
+      duration_days: initialRequest.duration_days || 14,
     },
   });
 
@@ -82,6 +83,7 @@ export default function PlanResultsPage() {
       <div className="rounded-xl bg-white p-8 shadow-sm">
         <h1 className="text-2xl font-semibold text-slate-900">{plan.title}</h1>
         <p className="mt-2 text-slate-600">{plan.summary}</p>
+        <p className="mt-2 text-sm text-slate-600">Duration: {plan.duration_days} days</p>
         <p className="mt-2 text-xs uppercase tracking-wide text-slate-500">
           Generated At: {new Date(plan.generated_at).toLocaleString()}
         </p>
@@ -89,14 +91,15 @@ export default function PlanResultsPage() {
       </div>
 
       <div className="rounded-xl bg-white p-8 shadow-sm">
-        <h2 className="text-xl font-semibold text-slate-900">Workout Sections</h2>
+        <h2 className="text-xl font-semibold text-slate-900">Daily Workouts</h2>
         <div className="mt-4 space-y-4">
-          {plan.workouts.map((section) => (
-            <div key={section.name} className="rounded-lg border border-slate-200 p-4">
-              <h3 className="font-semibold text-slate-900">{section.name}</h3>
-              <p className="text-sm text-slate-500">Duration: {section.duration_minutes} minutes</p>
+          {plan.days.map((day) => (
+            <div key={day.day_number} className="rounded-lg border border-slate-200 p-4">
+              <h3 className="font-semibold text-slate-900">
+                {day.day_label}: {day.focus}
+              </h3>
               <ul className="mt-2 list-disc space-y-1 pl-5 text-slate-700">
-                {section.exercises.map((exercise) => (
+                {day.exercises.map((exercise) => (
                   <li key={exercise}>{exercise}</li>
                 ))}
               </ul>
@@ -155,6 +158,24 @@ export default function PlanResultsPage() {
               {...register("equipment")}
             />
             {errors.equipment?.message && <p className="mt-1 text-sm text-red-600">{errors.equipment.message}</p>}
+          </div>
+          <div>
+            <label htmlFor="duration_days" className="mb-1 block text-sm font-medium text-slate-700">
+              Plan Duration (days)
+            </label>
+            <input
+              id="duration_days"
+              type="number"
+              min={1}
+              max={90}
+              className={`w-full rounded-lg border px-3 py-2 outline-none transition ${
+                errors.duration_days
+                  ? "border-red-500 ring-2 ring-red-200"
+                  : "border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+              }`}
+              {...register("duration_days")}
+            />
+            {errors.duration_days?.message && <p className="mt-1 text-sm text-red-600">{errors.duration_days.message}</p>}
           </div>
 
           <button

@@ -20,6 +20,7 @@ export default function GeneratePlanPage() {
       prompt: "",
       goal: "",
       equipment: "",
+      duration_days: 14,
     },
   });
 
@@ -75,6 +76,15 @@ export default function GeneratePlanPage() {
           registration={register("equipment")}
           error={errors.equipment?.message}
           placeholder="Example: Dumbbells, resistance bands, bench"
+        />
+        <FormInput
+          id="duration_days"
+          label="Plan Duration (days)"
+          type="number"
+          min={1}
+          max={90}
+          registration={register("duration_days")}
+          error={errors.duration_days?.message}
         />
 
         <button
