@@ -29,4 +29,12 @@ export async function getUserById(userId) {
   return api.get(`/users/${userId}`);
 }
 
+export async function generatePlan(payload) {
+  return api.post("/plan/generate", payload);
+}
+
+export async function regeneratePlan(payload) {
+  return api.post("/plan/regenerate", payload);
+}
+
 export default api;
