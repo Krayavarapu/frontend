@@ -1,33 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getActivePlan, getUserById } from "../../api/api";
 
-const defaultWorkouts = [
-  "Upper Body Strength",
-  "Lower Body Strength",
-  "Core and Mobility",
-];
-
 export default function HomePage() {
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [loadingName, setLoadingName] = useState(true);
   const [activePlan, setActivePlan] = useState(null);
 
-  const activeWorkouts = useMemo(() => {
-    if (activePlan?.days?.length) {
-      return activePlan.days.map((day) => day.focus);
-    }
-    try {
-      const rawPlan = sessionStorage.getItem("latest_plan");
-      if (!rawPlan) {
-        return defaultWorkouts;
-      }
-      const parsed = JSON.parse(rawPlan);
-      const workoutNames = (parsed.days || []).map((day) => day.focus).filter(Boolean);
-      return workoutNames.length > 0 ? workoutNames : defaultWorkouts;
-    } catch {
-      return defaultWorkouts;
-    }
-  }, [activePlan]);
+  const activePlans = useMemo(() => (activePlan ? [activePlan] : []), [activePlan]);
 
   useEffect(() => {
     const userId = localStorage.getItem("user_id");
@@ -70,7 +51,7 @@ export default function HomePage() {
         <h1 className="text-2xl font-semibold text-slate-900">
           Welcome{loadingName ? "" : `, ${firstName || "Athlete"}`}
         </h1>
-        <p className="mt-2 text-slate-600">Here are your active workouts for this session.</p>
+        <p className="mt-2 text-slate-600">Here are your active plans.</p>
         {activePlan && (
           <p className="mt-2 text-sm text-indigo-700">
             Active plan: {activePlan.title} ({activePlan.duration_days} days)
@@ -79,14 +60,27 @@ export default function HomePage() {
       </section>
 
       <section className="rounded-xl bg-white p-8 shadow-sm">
-        <h2 className="text-xl font-semibold text-slate-900">Active Workouts</h2>
-        <ul className="mt-4 space-y-3">
-          {activeWorkouts.map((workout) => (
-            <li key={workout} className="rounded-lg border border-slate-200 px-4 py-3 text-slate-800">
-              {workout}
-            </li>
-          ))}
-        </ul>
+        <h2 className="text-xl font-semibold text-slate-900">Active Plans</h2>
+        {activePlans.length === 0 ? (
+          <p className="mt-4 text-slate-600">No active plan yet. Generate one to get started.</p>
+        ) : (
+          <ul className="mt-4 space-y-3">
+            {activePlans.map((plan) => (
+              <li key={plan.plan_id}>
+                <button
+                  type="button"
+                  onClick={() => navigate("/plan/results", { state: { plan } })}
+                  className="w-full rounded-lg border border-slate-200 px-4 py-3 text-left transition hover:border-indigo-300 hover:bg-indigo-50"
+                >
+                  <p className="font-medium text-slate-900">{plan.title}</p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {plan.duration_days} days • {plan.days?.length || 0} daily workouts
+                  </p>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );
