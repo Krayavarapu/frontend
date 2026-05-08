@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getActivePlan, getUserById } from "../../api/api";
 
 export default function HomePage() {
@@ -7,8 +7,31 @@ export default function HomePage() {
   const [firstName, setFirstName] = useState("");
   const [loadingName, setLoadingName] = useState(true);
   const [activePlan, setActivePlan] = useState(null);
+  const [loadingPlans, setLoadingPlans] = useState(true);
 
-  const activePlans = useMemo(() => (activePlan ? [activePlan] : []), [activePlan]);
+  const activePlans = useMemo(() => {
+    const plans = [];
+    if (activePlan?.plan_id) {
+      plans.push(activePlan);
+    }
+    try {
+      const rawPlan = sessionStorage.getItem("latest_plan");
+      if (!rawPlan) {
+        return plans;
+      }
+      const storedPlan = JSON.parse(rawPlan);
+      if (!storedPlan?.plan_id) {
+        return plans;
+      }
+      const alreadyIncluded = plans.some((plan) => plan.plan_id === storedPlan.plan_id);
+      if (!alreadyIncluded) {
+        plans.push(storedPlan);
+      }
+      return plans;
+    } catch {
+      return plans;
+    }
+  }, [activePlan]);
 
   useEffect(() => {
     const userId = localStorage.getItem("user_id");
@@ -39,6 +62,8 @@ export default function HomePage() {
         sessionStorage.setItem("latest_plan", JSON.stringify(response.data));
       } catch {
         setActivePlan(null);
+      } finally {
+        setLoadingPlans(false);
       }
     };
 
@@ -61,8 +86,20 @@ export default function HomePage() {
 
       <section className="rounded-xl bg-white p-8 shadow-sm">
         <h2 className="text-xl font-semibold text-slate-900">Active Plans</h2>
-        {activePlans.length === 0 ? (
-          <p className="mt-4 text-slate-600">No active plan yet. Generate one to get started.</p>
+        {loadingPlans ? (
+          <p className="mt-4 text-slate-600">Loading active plans...</p>
+        ) : activePlans.length === 0 ? (
+          <div className="mt-4 space-y-3">
+            <p className="text-slate-600">
+              No active plan yet. After you generate one, a clickable card will appear here.
+            </p>
+            <Link
+              to="/plan/generate"
+              className="inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+            >
+              Go to Workout Plan
+            </Link>
+          </div>
         ) : (
           <ul className="mt-4 space-y-3">
             {activePlans.map((plan) => (
